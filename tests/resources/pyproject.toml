@@ -1,0 +1,25 @@
+[project]
+name = "test-package"
+version = "0.1.0"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
+
+[tool.ruff]
+fix = true
+unsafe-fixes = false
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "R", "W", "I", "N", "D", "C", "PERF", "FURB", "RUF"]
+ignore = ["D417", "RUF012", "D107", "D101"]
+
+
+[tool.ruff.format]
+quote-style = "double"
+docstring-code-format = true
+indent-style = "space"
+
+[tool.ty.rules]
+invalid-type-form = "ignore"
+unresolved-attribute = "ignore"

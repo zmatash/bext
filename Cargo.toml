@@ -1,0 +1,18 @@
+[package]
+name = "bext"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "bext"
+path = "src/lib.rs"
+
+[dependencies]
+clap = "4.6.1"
+pep440_rs = "0.7.3"
+serde = { version = "1.0.228", features = ["derive"] }
+thiserror = "2.0.18"
+toml_edit = { version = "0.25.11", features = ["serde"] }
+
+[dev-dependencies]
+tempfile = "3.27.0"
