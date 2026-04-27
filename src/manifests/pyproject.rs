@@ -1,18 +1,20 @@
 use std::path::PathBuf;
 
-use pep440_rs::Version;
+use semver::Version;
 use serde::Deserialize;
 use thiserror::Error;
 use toml_edit::DocumentMut;
 
 #[derive(Error, Debug)]
 pub enum PyProjectError {
-    #[error("invalid TOML: {0}")]
-    Toml(#[from] toml_edit::TomlError),
-    #[error("deserialize: {0}")]
-    De(#[from] toml_edit::de::Error),
-    #[error("IO error: {0}")]
-    Io(#[from] std::io::Error),
+    #[error("TOML deserialization error: {0}")]
+    DeserializeError(#[from] toml_edit::de::Error),
+
+    #[error("TOML parse error: {0}")]
+    ParseError(#[from] toml_edit::TomlError),
+
+    #[error("I/O error: {0}")]
+    IoError(#[from] std::io::Error),
 }
 
 #[derive(Debug, Clone, Deserialize)]
