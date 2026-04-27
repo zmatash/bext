@@ -1,0 +1,16 @@
+schema_version = "1.0.0"
+
+id = "test_addon"
+version = "0.1.0"
+name = "Test Addon"
+tagline = "A test addon."
+maintainer = "Test Maintainer"
+type = "add-on"
+website = "https://example.com"
+tags = ["3D View", "Add Mesh"]
+blender_version_min = "4.2.0"
+license = ["SPDX:GPL-3.0-or-later"]
+
+[permissions]
+files = "Read project files."
+network = "Send anonymized statistics."
