@@ -1,7 +1,7 @@
 use std::str::FromStr;
 
 use bext::manifests::pyproject::PyProject;
-use pep440_rs::Version;
+use semver::Version;
 
 use crate::resources::TestResources;
 
@@ -35,4 +35,9 @@ fn test_pyproject_write_preservation() {
     let pyproject_string_from_file = pyproject_from_file.to_string().unwrap();
     assert_eq!(pyproject_string_from_file, pyproject_string_updated);
     assert_ne!(pyproject_string_from_file, pyproject_string);
+    assert_eq!(
+        pyproject_from_file.project.version,
+        Version::from_str("1.0.0").unwrap()
+    );
+    assert_eq!(pyproject_from_file.project.name, "test-package");
 }
