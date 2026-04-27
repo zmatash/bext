@@ -9,7 +9,7 @@ path = "src/lib.rs"
 
 [dependencies]
 clap = "4.6.1"
-pep440_rs = "0.7.3"
+semver = { version = "1.0.28", features = ["serde"] }
 serde = { version = "1.0.228", features = ["derive"] }
 thiserror = "2.0.18"
 toml_edit = { version = "0.25.11", features = ["serde"] }
