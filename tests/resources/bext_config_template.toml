@@ -1,0 +1,4 @@
+source_dir = "src"
+output_dir = "dist"
+exclude_globs = ["**/__pycache__/**", "**/*.pyc"]
+blender_versions = ["4.2.0", "4.3.0"]

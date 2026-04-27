@@ -4,6 +4,7 @@ use std::path::PathBuf;
 pub struct TestResources {
     pub pyproject_template: PathBuf,
     pub blender_manifest_template: PathBuf,
+    pub bext_config_template: PathBuf,
 }
 
 impl TestResources {
@@ -12,6 +13,7 @@ impl TestResources {
         Self {
             pyproject_template: resources_root.join("pyproject_template.toml"),
             blender_manifest_template: resources_root.join("blender_manifest_template.toml"),
+            bext_config_template: resources_root.join("bext_config_template.toml"),
         }
     }
 }

@@ -5,7 +5,7 @@ use serde::Deserialize;
 use thiserror::Error;
 use toml_edit::DocumentMut;
 
-use crate::manifests::utility::set_optional;
+use crate::manifests::utility::{ToInlineTable, set_optional};
 
 #[derive(Error, Debug)]
 pub enum BlenderManifestError {
@@ -26,6 +26,28 @@ pub struct Permissions {
     pub clipboard: Option<String>,
     pub camera: Option<String>,
     pub microphone: Option<String>,
+}
+
+impl ToInlineTable for Permissions {
+    fn to_inline_table(&self) -> toml_edit::InlineTable {
+        let mut tbl = toml_edit::InlineTable::new();
+        if let Some(v) = &self.files {
+            tbl.insert("files", v.into());
+        }
+        if let Some(v) = &self.network {
+            tbl.insert("network", v.into());
+        }
+        if let Some(v) = &self.clipboard {
+            tbl.insert("clipboard", v.into());
+        }
+        if let Some(v) = &self.camera {
+            tbl.insert("camera", v.into());
+        }
+        if let Some(v) = &self.microphone {
+            tbl.insert("microphone", v.into());
+        }
+        tbl
+    }
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -84,56 +106,25 @@ impl BlenderManifest {
             ExtensionType::Theme => "theme",
         });
 
-        set_optional(&mut doc, "website", self.website.clone());
-        set_optional(
-            &mut doc,
-            "tags",
-            self.tags
-                .as_ref()
-                .map(|t| toml_edit::Array::from_iter(t.iter().map(|s| s.as_str()))),
-        );
+        set_optional(&mut doc, "website", self.website.as_deref());
+        set_optional(&mut doc, "tags", self.tags.as_ref());
         set_optional(
             &mut doc,
             "blender_version_min",
-            self.blender_version_min.as_ref().map(|v| v.to_string()),
+            self.blender_version_min.as_ref(),
         );
         set_optional(
             &mut doc,
             "blender_version_max",
-            self.blender_version_max.as_ref().map(|v| v.to_string()),
+            self.blender_version_max.as_ref(),
         );
+        set_optional(&mut doc, "wheels", self.wheels.as_ref());
+
         set_optional(
             &mut doc,
-            "wheels",
-            self.wheels
-                .as_ref()
-                .map(|w| toml_edit::Array::from_iter(w.iter().map(|s| s.as_str()))),
+            "permissions",
+            self.permissions.as_ref().map(|p| p.to_inline_table()),
         );
-
-        match &self.permissions {
-            Some(perms) => {
-                let mut tbl = toml_edit::InlineTable::new();
-                if let Some(v) = &perms.files {
-                    tbl.insert("files", v.into());
-                }
-                if let Some(v) = &perms.network {
-                    tbl.insert("network", v.into());
-                }
-                if let Some(v) = &perms.clipboard {
-                    tbl.insert("clipboard", v.into());
-                }
-                if let Some(v) = &perms.camera {
-                    tbl.insert("camera", v.into());
-                }
-                if let Some(v) = &perms.microphone {
-                    tbl.insert("microphone", v.into());
-                }
-                doc["permissions"] = toml_edit::value(toml_edit::Value::InlineTable(tbl));
-            }
-            None => {
-                doc.remove("permissions");
-            }
-        }
 
         Ok(doc.to_string())
     }
