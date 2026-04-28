@@ -1,5 +1,6 @@
 use clap::{Parser, Subcommand};
 
+mod clean_cmd;
 mod link_cmd;
 mod unlink_cmd;
 
@@ -23,7 +24,7 @@ pub fn run() {
     let result = match args.command {
         Commands::Link => link_cmd::run_link_command().map_err(|e| e.to_string()),
         Commands::Unlink => unlink_cmd::run_unlink_command().map_err(|e| e.to_string()),
-        Commands::Clean => todo!(),
+        Commands::Clean => clean_cmd::run_clean_command().map_err(|e| e.to_string()),
         Commands::Build => todo!(),
     };
     if let Err(e) = result {
