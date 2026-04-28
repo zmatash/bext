@@ -21,6 +21,12 @@ impl IntoTomlValue for &str {
     }
 }
 
+impl IntoTomlValue for &String {
+    fn into_toml_value(self) -> toml_edit::Value {
+        self.as_str().into()
+    }
+}
+
 impl IntoTomlValue for toml_edit::Array {
     fn into_toml_value(self) -> toml_edit::Value {
         self.into()
