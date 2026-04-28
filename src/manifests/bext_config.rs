@@ -1,11 +1,11 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use semver::Version;
 use serde::Deserialize;
 use thiserror::Error;
 use toml_edit::DocumentMut;
 
-use crate::manifests::utility::set_optional;
+use crate::{core_utils::find_files, manifests::utility::set_optional};
 
 #[derive(Error, Debug)]
 pub enum BextConfigError {
@@ -15,6 +15,8 @@ pub enum BextConfigError {
     ParseError(#[from] toml_edit::TomlError),
     #[error("I/O error: {0}")]
     IoError(#[from] std::io::Error),
+    #[error("Config file not found in directory tree starting from: {0}")]
+    ConfigNotFound(String),
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -22,7 +24,7 @@ pub struct BextConfig {
     pub exclude_globs: Option<Vec<String>>,
     pub blender_versions: Option<Vec<Version>>,
     pub source_dir: String,
-    pub output_dir: String,
+    pub output_dir: Option<String>,
 
     #[serde(skip)]
     doc: DocumentMut,
@@ -39,6 +41,16 @@ impl std::str::FromStr for BextConfig {
 }
 
 impl BextConfig {
+    pub fn from_config_search(search_start: &Path) -> Result<BextConfig, BextConfigError> {
+        let config = find_files::search_up_for_file("bext.toml");
+        match config {
+            Some(path) => Self::from_file(&path),
+            None => Err(BextConfigError::ConfigNotFound(
+                search_start.to_string_lossy().to_string(),
+            )),
+        }
+    }
+
     pub fn from_file(path: &PathBuf) -> Result<Self, BextConfigError> {
         let content = std::fs::read_to_string(path)?;
         content.parse()
@@ -48,8 +60,8 @@ impl BextConfig {
         let mut doc = self.doc.clone();
         set_optional(&mut doc, "exclude_globs", self.exclude_globs.as_ref());
         set_optional(&mut doc, "blender_versions", self.blender_versions.as_ref());
+        set_optional(&mut doc, "output_dir", self.output_dir.as_ref());
         doc["source_dir"] = toml_edit::value(&self.source_dir);
-        doc["output_dir"] = toml_edit::value(&self.output_dir);
 
         Ok(doc.to_string())
     }
