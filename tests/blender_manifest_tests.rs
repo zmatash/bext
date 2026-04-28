@@ -3,9 +3,9 @@ use std::str::FromStr;
 use bext::manifests::blender_manifest::BlenderManifest;
 use semver::Version;
 
-use crate::resources::TestResources;
+use crate::fixtures::TestResources;
 
-mod resources;
+mod fixtures;
 
 #[test]
 fn test_blender_manifest_template() {

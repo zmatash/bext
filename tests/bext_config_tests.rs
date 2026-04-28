@@ -3,22 +3,19 @@ use std::str::FromStr;
 use bext::manifests::bext_config::BextConfig;
 use semver::Version;
 
-use crate::resources::TestResources;
+use crate::fixtures::TestResources;
 
-mod resources;
+mod fixtures;
 
 #[test]
 fn test_bext_config_template() {
     let resources = TestResources::new();
     let config = BextConfig::from_file(&resources.bext_config_template).unwrap();
     assert_eq!(config.source_dir, "src");
-    assert_eq!(config.output_dir, "dist");
+    assert_eq!(config.output_dir, Some("dist".into()));
     assert_eq!(
         config.exclude_globs,
-        Some(vec![
-            "**/__pycache__/**".to_string(),
-            "**/*.pyc".to_string()
-        ])
+        Some(vec!["**/__pycache__/**".into(), "**/*.pyc".into()])
     );
     assert_eq!(
         config.blender_versions,
@@ -35,7 +32,7 @@ fn test_bext_config_optional_fields_absent() {
         .parse()
         .unwrap();
     assert_eq!(config.source_dir, "src");
-    assert_eq!(config.output_dir, "dist");
+    assert_eq!(config.output_dir, Some("dist".into()));
     assert!(config.exclude_globs.is_none());
     assert!(config.blender_versions.is_none());
 }
@@ -46,7 +43,7 @@ fn test_bext_config_write_preservation() {
     let mut config = BextConfig::from_file(&resources.bext_config_template).unwrap();
     let original_string = config.to_string().unwrap();
 
-    config.output_dir = "build".to_string();
+    config.output_dir = Some("build".into());
     let updated_string = config.to_string().unwrap();
 
     let tempdir = tempfile::tempdir().unwrap();
@@ -57,7 +54,7 @@ fn test_bext_config_write_preservation() {
     let string_from_file = config_from_file.to_string().unwrap();
     assert_eq!(string_from_file, updated_string);
     assert_ne!(string_from_file, original_string);
-    assert_eq!(config_from_file.output_dir, "build");
+    assert_eq!(config_from_file.output_dir, Some("build".into()));
     assert_eq!(config_from_file.source_dir, "src");
 }
 
@@ -77,5 +74,5 @@ fn test_bext_config_optional_fields_roundtrip() {
     assert!(config_from_file.exclude_globs.is_none());
     assert!(config_from_file.blender_versions.is_none());
     assert_eq!(config_from_file.source_dir, "src");
-    assert_eq!(config_from_file.output_dir, "dist");
+    assert_eq!(config_from_file.output_dir, Some("dist".into()));
 }
