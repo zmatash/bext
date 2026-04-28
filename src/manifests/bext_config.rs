@@ -5,7 +5,7 @@ use serde::Deserialize;
 use thiserror::Error;
 use toml_edit::DocumentMut;
 
-use crate::{core_utils::find_files, manifests::utility::set_optional};
+use crate::{ops::find_files, manifests::common::set_optional};
 
 #[derive(Error, Debug)]
 pub enum BextConfigError {

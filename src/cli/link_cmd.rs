@@ -1,7 +1,7 @@
 use std::env::current_dir;
 
 use crate::{
-    core_utils::{
+    ops::{
         blender_data,
         extension_validation::{self, validate_extension},
         link,

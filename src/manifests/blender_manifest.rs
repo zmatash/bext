@@ -5,7 +5,7 @@ use serde::Deserialize;
 use thiserror::Error;
 use toml_edit::DocumentMut;
 
-use crate::manifests::utility::{ToInlineTable, set_optional};
+use crate::manifests::common::{ToInlineTable, set_optional};
 
 #[derive(Error, Debug)]
 pub enum BlenderManifestError {

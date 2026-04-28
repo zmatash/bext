@@ -1,3 +1,3 @@
 pub mod cli;
-pub mod core_utils;
+pub mod ops;
 pub mod manifests;

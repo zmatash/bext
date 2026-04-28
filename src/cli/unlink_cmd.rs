@@ -1,7 +1,7 @@
 use std::env::current_dir;
 
 use crate::{
-    core_utils::{blender_data, link},
+    ops::{blender_data, link},
     manifests::bext_config::BextConfig,
 };
 
