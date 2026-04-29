@@ -92,7 +92,7 @@ bext build
 
 ### link
 
-Creates symbolic links to your extension in Blender's extensions directory, allowing you to test changes without rebuilding.
+Creates symbolic links to your extension in Blender's extensions directory, allowing you to test changes without manually installing.
 
 ```bash
 bext link
@@ -101,15 +101,10 @@ bext link
 **What it does:**
 - Reads the `bext.toml` configuration
 - For each Blender version in `blender_versions`, creates a symlink from your source directory to Blender's extensions folder
-- Allows you to edit your extension and see changes in Blender immediately
 
 **Requirements:**
 - `blender_versions` must be specified in `bext.toml`
 - Blender must be installed with those versions
-
-**Platform Support:**
-- Works on Windows (requires admin privileges or developer mode for symlinks)
-- Works on macOS and Linux
 
 ### unlink
 
@@ -123,8 +118,7 @@ bext unlink
 - Removes symlinks from all Blender extension directories specified in `blender_versions`
 
 **Use when:**
-- You've finished development and want to clean up
-- You're switching to a different extension directory structure
+- You want to remove symlinks created by bext link
 
 ### clean
 
@@ -144,98 +138,7 @@ bext clean
 
 **Use when:**
 - You want to remove build artifacts, cache files, or test data
-- You're preparing to commit changes and want to clean up
 
-## Typical Workflow
-
-### Development Setup
-
-```bash
-# Create bext.toml configuration
-# Initialize with your extension details
-
-# Symlink for development
-bext link
-
-# Edit your extension files in your IDE
-# Changes are reflected immediately in Blender
-```
-
-### Before Distribution
-
-```bash
-# Clean up artifacts
-bext clean
-
-# Build the distribution archive
-bext build
-
-# Verify the generated ZIP contains everything needed
-```
-
-### Cleanup
-
-```bash
-# When finished with development
-bext unlink
-```
-
-## Configuration Examples
-
-### Minimal Python Extension
-
-```toml
-source_dir = "addon"
-output_dir = "dist"
-blender_versions = ["4.2"]
-exclude_globs = ["__pycache__", "*.pyc"]
-```
-
-### Complex Extension with Tests and Docs
-
-```toml
-source_dir = "src"
-output_dir = "releases"
-blender_versions = ["4.2", "4.1", "4.0"]
-exclude_globs = [
-    "__pycache__",
-    "*.pyc",
-    ".git",
-    ".gitignore",
-    "tests",
-    "docs",
-    "*.egg-info",
-    ".vscode",
-    ".pytest_cache"
-]
-package_name = "advanced_addon"
-```
-
-## Troubleshooting
-
-### "Config file not found"
-
-The tool couldn't find `bext.toml`. Make sure it exists in your project root or a parent directory.
-
-### "Source path does not exist"
-
-The `source_dir` specified in `bext.toml` doesn't exist. Check the path is correct and relative to where you run the command.
-
-### "No Blender versions specified"
-
-The `blender_versions` array in `bext.toml` is empty or missing. Add it for `link`/`unlink` commands.
-
-### "No output directory specified"
-
-The `output_dir` is missing from `bext.toml`. Add it for the `build` command.
-
-### Symlinks not working on Windows
-
-Windows requires either:
-- Admin privileges
-- Developer mode enabled (Windows 11+)
-
-Run your terminal as Administrator or enable Developer Mode in Windows Settings.
 
 ## File Structure
 
