@@ -5,7 +5,10 @@ use serde::Deserialize;
 use thiserror::Error;
 use toml_edit::DocumentMut;
 
-use crate::{ops::find_files, manifests::common::set_optional};
+use crate::{
+    manifests::{blender_manifest::BlenderManifest, common::set_optional},
+    ops::find_files,
+};
 
 #[derive(Error, Debug)]
 pub enum BextConfigError {
@@ -25,6 +28,7 @@ pub struct BextConfig {
     pub blender_versions: Option<Vec<Version>>,
     pub source_dir: String,
     pub output_dir: Option<String>,
+    pub package_name: Option<String>,
 
     #[serde(skip)]
     doc: DocumentMut,
@@ -34,9 +38,9 @@ impl std::str::FromStr for BextConfig {
     type Err = BextConfigError;
 
     fn from_str(content: &str) -> Result<Self, Self::Err> {
-        let mut pyproject: BextConfig = toml_edit::de::from_str(content)?;
-        pyproject.doc = content.parse()?;
-        Ok(pyproject)
+        let mut bext_config: BextConfig = toml_edit::de::from_str(content)?;
+        bext_config.doc = content.parse()?;
+        Ok(bext_config)
     }
 }
 
@@ -61,6 +65,7 @@ impl BextConfig {
         set_optional(&mut doc, "exclude_globs", self.exclude_globs.as_ref());
         set_optional(&mut doc, "blender_versions", self.blender_versions.as_ref());
         set_optional(&mut doc, "output_dir", self.output_dir.as_ref());
+        set_optional(&mut doc, "package_name", self.package_name.as_ref());
         doc["source_dir"] = toml_edit::value(&self.source_dir);
 
         Ok(doc.to_string())
@@ -70,5 +75,14 @@ impl BextConfig {
         let content = self.to_string()?;
         std::fs::write(path, content)?;
         Ok(())
+    }
+
+    pub fn resolve_package_name(&self, blender_manifest: &BlenderManifest) -> String {
+        let template = self.package_name.as_deref().unwrap_or("{name}");
+        template
+            .replace("{id}", &blender_manifest.id)
+            .replace("{name}", &blender_manifest.name)
+            .replace("{version}", &blender_manifest.version.to_string())
+            .replace("{maintainer}", &blender_manifest.maintainer)
     }
 }
