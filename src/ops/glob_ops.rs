@@ -12,12 +12,14 @@ pub enum GlobDeleteError {
     GlobError(#[from] glob::PatternError),
 }
 
-pub fn glob_delete(dir: &Path, globs: Vec<String>) -> Result<(), GlobDeleteError> {
+pub fn compile_string_globs<T: AsRef<str>>(globs: &[T]) -> Result<Vec<Pattern>, GlobDeleteError> {
     let compiled_globs: Vec<Pattern> = globs
-        .into_iter()
-        .filter_map(|p| Pattern::new(&p).ok())
+        .iter()
+        .filter_map(|p| Pattern::new(p.as_ref()).ok())
         .collect();
-
+    Ok(compiled_globs)
+}
+pub fn glob_delete(dir: &Path, globs: &[Pattern]) -> Result<(), GlobDeleteError> {
     for entry in WalkDir::new(dir)
         .contents_first(true)
         .into_iter()
@@ -29,7 +31,7 @@ pub fn glob_delete(dir: &Path, globs: Vec<String>) -> Result<(), GlobDeleteError
             None => continue,
         };
 
-        let should_delete = compiled_globs.iter().any(|p| p.matches(file_name));
+        let should_delete = globs.iter().any(|p| p.matches(file_name));
 
         if should_delete {
             if path.is_file() {
