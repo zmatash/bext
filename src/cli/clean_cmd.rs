@@ -38,7 +38,8 @@ pub fn run_clean_command() -> Result<(), CleanCommandError> {
     let source_path = current_dir.join(&config.source_dir);
     validate_extension(&source_path)?;
 
-    glob_ops::glob_delete(&source_path, &exclude_glob)?;
+    let deleted = glob_ops::glob_delete(&source_path, &exclude_glob)?;
+    println!("Deleted {deleted} items based on exclude patterns.");
 
     Ok(())
 }

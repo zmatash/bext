@@ -19,7 +19,9 @@ pub fn compile_string_globs<T: AsRef<str>>(globs: &[T]) -> Result<Vec<Pattern>, 
         .collect()
 }
 
-pub fn glob_delete(dir: &Path, globs: &[Pattern]) -> Result<(), GlobDeleteError> {
+pub fn glob_delete(dir: &Path, globs: &[Pattern]) -> Result<u32, GlobDeleteError> {
+    let mut items_deleted: u32 = 0;
+
     for entry in WalkDir::new(dir)
         .contents_first(true)
         .into_iter()
@@ -37,6 +39,7 @@ pub fn glob_delete(dir: &Path, globs: &[Pattern]) -> Result<(), GlobDeleteError>
         let should_delete = globs.iter().any(|p| p.matches_path(rel_path));
 
         if should_delete {
+            items_deleted += 1;
             if path.is_file() {
                 fs::remove_file(path)?;
             } else if path.is_dir() {
@@ -45,7 +48,7 @@ pub fn glob_delete(dir: &Path, globs: &[Pattern]) -> Result<(), GlobDeleteError>
         }
     }
 
-    Ok(())
+    Ok(items_deleted)
 }
 
 #[cfg(test)]

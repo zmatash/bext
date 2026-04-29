@@ -68,6 +68,8 @@ pub fn run_build_command() -> Result<(), BuildCommandError> {
         _ => Vec::new(),
     };
 
+    println!("Building archive at {}... ", dst_file.display());
     archive_ops::build_archive(src_dir, dst_file, &exclude_globs)?;
+
     Ok(())
 }
