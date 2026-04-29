@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use semver::Version;
 use serde::Deserialize;
@@ -82,14 +82,14 @@ impl std::str::FromStr for BlenderManifest {
     type Err = BlenderManifestError;
 
     fn from_str(content: &str) -> Result<Self, Self::Err> {
-        let mut pyproject: BlenderManifest = toml_edit::de::from_str(content)?;
-        pyproject.doc = content.parse()?;
-        Ok(pyproject)
+        let mut blender_manifest: BlenderManifest = toml_edit::de::from_str(content)?;
+        blender_manifest.doc = content.parse()?;
+        Ok(blender_manifest)
     }
 }
 
 impl BlenderManifest {
-    pub fn from_file(path: &PathBuf) -> Result<Self, BlenderManifestError> {
+    pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self, BlenderManifestError> {
         let content = std::fs::read_to_string(path)?;
         content.parse()
     }

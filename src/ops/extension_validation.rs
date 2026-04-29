@@ -11,7 +11,8 @@ pub enum ExtensionValidationError {
     NoManifestFile(PathBuf),
 }
 
-pub fn validate_extension(source_dir: &Path) -> Result<(), ExtensionValidationError> {
+pub fn validate_extension<P: AsRef<Path>>(source_dir: P) -> Result<(), ExtensionValidationError> {
+    let source_dir = source_dir.as_ref();
     if !source_dir.exists() {
         return Err(ExtensionValidationError::DirectoryNotFound(
             source_dir.into(),
