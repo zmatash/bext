@@ -1,6 +1,9 @@
-use std::{fs::read_dir, path::PathBuf};
+use std::{
+    fs::read_dir,
+    path::{Path, PathBuf},
+};
 
-fn search_dir_for(dir: &PathBuf, file_name: &str) -> Option<PathBuf> {
+fn search_dir_for(dir: &Path, file_name: &str) -> Option<PathBuf> {
     for entry in read_dir(dir).ok()? {
         let entry = entry.ok()?;
         let path = entry.path();
@@ -11,8 +14,8 @@ fn search_dir_for(dir: &PathBuf, file_name: &str) -> Option<PathBuf> {
     None
 }
 
-pub fn search_up_for_file(file_name: &str) -> Option<PathBuf> {
-    let mut current_dir = std::env::current_dir().ok()?;
+pub fn search_up_for_file<P: AsRef<Path>>(start: P, file_name: &str) -> Option<PathBuf> {
+    let mut current_dir = start.as_ref().to_path_buf();
 
     loop {
         if let Some(path) = search_dir_for(&current_dir, file_name) {
@@ -45,8 +48,7 @@ mod tests {
         let target_file = current_dir.join(FILE_NAME);
         std::fs::write(&target_file, "test").unwrap();
 
-        std::env::set_current_dir(&current_dir).unwrap();
-        let file = search_up_for_file(FILE_NAME).unwrap();
+        let file = search_up_for_file(&current_dir, FILE_NAME).unwrap();
         assert_eq!(file, target_file);
     }
 }

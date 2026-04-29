@@ -1,4 +1,4 @@
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use semver::Version;
 use serde::Deserialize;
@@ -45,9 +45,9 @@ impl std::str::FromStr for BextConfig {
 }
 
 impl BextConfig {
-    pub fn from_config_search(search_start: &Path) -> Result<BextConfig, BextConfigError> {
-        let config = find_files::search_up_for_file("bext.toml");
-        match config {
+    pub fn from_config_search<P: AsRef<Path>>(search_start: P) -> Result<BextConfig, BextConfigError> {
+        let search_start = search_start.as_ref();
+        match find_files::search_up_for_file(search_start, "bext.toml") {
             Some(path) => Self::from_file(&path),
             None => Err(BextConfigError::ConfigNotFound(
                 search_start.to_string_lossy().to_string(),
@@ -55,7 +55,7 @@ impl BextConfig {
         }
     }
 
-    pub fn from_file(path: &PathBuf) -> Result<Self, BextConfigError> {
+    pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self, BextConfigError> {
         let content = std::fs::read_to_string(path)?;
         content.parse()
     }
@@ -71,7 +71,7 @@ impl BextConfig {
         Ok(doc.to_string())
     }
 
-    pub fn to_file(&self, path: &PathBuf) -> Result<(), BextConfigError> {
+    pub fn to_file<P: AsRef<Path>>(&self, path: P) -> Result<(), BextConfigError> {
         let content = self.to_string()?;
         std::fs::write(path, content)?;
         Ok(())

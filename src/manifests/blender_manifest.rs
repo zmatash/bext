@@ -1,4 +1,4 @@
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use semver::Version;
 use serde::Deserialize;
@@ -129,7 +129,7 @@ impl BlenderManifest {
         Ok(doc.to_string())
     }
 
-    pub fn to_file(&self, path: &PathBuf) -> Result<(), BlenderManifestError> {
+    pub fn to_file<P: AsRef<Path>>(&self, path: P) -> Result<(), BlenderManifestError> {
         let content = self.to_string()?;
         std::fs::write(path, content)?;
         Ok(())

@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::path::Path;
 
 use semver::Version;
 use serde::Deserialize;
@@ -42,7 +42,7 @@ impl std::str::FromStr for PyProject {
 }
 
 impl PyProject {
-    pub fn from_file(path: &PathBuf) -> Result<Self, PyProjectError> {
+    pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Self, PyProjectError> {
         let content = std::fs::read_to_string(path)?;
         content.parse()
     }
@@ -54,7 +54,7 @@ impl PyProject {
         Ok(doc.to_string())
     }
 
-    pub fn to_file(&self, path: &PathBuf) -> Result<(), PyProjectError> {
+    pub fn to_file<P: AsRef<Path>>(&self, path: P) -> Result<(), PyProjectError> {
         let content = self.to_string()?;
         std::fs::write(path, content)?;
         Ok(())
