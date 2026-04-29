@@ -1,5 +1,6 @@
 use clap::{Parser, Subcommand};
 
+mod build_cmd;
 mod clean_cmd;
 mod link_cmd;
 mod unlink_cmd;
@@ -25,7 +26,7 @@ pub fn run() {
         Commands::Link => link_cmd::run_link_command().map_err(|e| e.to_string()),
         Commands::Unlink => unlink_cmd::run_unlink_command().map_err(|e| e.to_string()),
         Commands::Clean => clean_cmd::run_clean_command().map_err(|e| e.to_string()),
-        Commands::Build => todo!(),
+        Commands::Build => build_cmd::run_build_command().map_err(|e| e.to_string()),
     };
     if let Err(e) = result {
         eprintln!("Error: {e}");
