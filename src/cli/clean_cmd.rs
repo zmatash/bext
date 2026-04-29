@@ -30,15 +30,15 @@ pub fn run_clean_command() -> Result<(), CleanCommandError> {
     let current_dir = current_dir()?;
     let config = BextConfig::from_config_search(&current_dir)?;
 
-    let exclude_globs = match config.exclude_globs {
-        Some(patterns) if !patterns.is_empty() => patterns,
+    let exclude_glob = match &config.exclude_globs {
+        Some(patterns) if !patterns.is_empty() => glob_ops::compile_string_globs(patterns)?,
         _ => return Err(CleanCommandError::NoExcludePatterns),
     };
 
     let source_path = current_dir.join(&config.source_dir);
     validate_extension(&source_path)?;
 
-    glob_ops::glob_delete(&source_path, exclude_globs)?;
+    glob_ops::glob_delete(&source_path, &exclude_glob)?;
 
     Ok(())
 }
