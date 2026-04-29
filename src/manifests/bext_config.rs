@@ -1,7 +1,7 @@
 use std::path::Path;
 
 use semver::Version;
-use serde::Deserialize;
+use serde::{Deserialize, Deserializer};
 use thiserror::Error;
 use toml_edit::DocumentMut;
 
@@ -9,6 +9,26 @@ use crate::{
     manifests::{blender_manifest::BlenderManifest, common::set_optional},
     ops::find_files,
 };
+
+fn deserialize_lenient_versions<'de, D>(deserializer: D) -> Result<Option<Vec<Version>>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let opt: Option<Vec<String>> = Option::deserialize(deserializer)?;
+    let Some(strings) = opt else { return Ok(None) };
+
+    let versions = strings
+        .into_iter()
+        .map(|s| {
+            Version::parse(&s)
+                .or_else(|_| Version::parse(&format!("{}.0", s)))
+                .or_else(|_| Version::parse(&format!("{}.0.0", s)))
+                .map_err(serde::de::Error::custom)
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+
+    Ok(Some(versions))
+}
 
 #[derive(Error, Debug)]
 pub enum BextConfigError {
@@ -25,6 +45,7 @@ pub enum BextConfigError {
 #[derive(Debug, Clone, Deserialize)]
 pub struct BextConfig {
     pub exclude_globs: Option<Vec<String>>,
+    #[serde(default, deserialize_with = "deserialize_lenient_versions")]
     pub blender_versions: Option<Vec<Version>>,
     pub source_dir: String,
     pub output_dir: Option<String>,
