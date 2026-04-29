@@ -1,4 +1,5 @@
 use clap::{Parser, Subcommand};
+use colored::Colorize;
 
 mod build_cmd;
 mod clean_cmd;
@@ -28,8 +29,11 @@ pub fn run() {
         Commands::Clean => clean_cmd::run_clean_command().map_err(|e| e.to_string()),
         Commands::Build => build_cmd::run_build_command().map_err(|e| e.to_string()),
     };
+
     if let Err(e) = result {
-        eprintln!("Error: {e}");
+        eprintln!("{}", e.to_string().red());
         std::process::exit(1);
+    } else {
+        println!("{}", "Success!".green());
     }
 }
