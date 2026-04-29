@@ -8,6 +8,9 @@ pub enum LinkError {
     #[error("Unsupported platform")]
     UnsupportedPlatform,
 
+    #[error("Path contains invalid UTF-8: {0}")]
+    InvalidPath(std::path::PathBuf),
+
     #[error("Failed to create Junction via cmd")]
     JunctionCreationFailed,
 
@@ -17,8 +20,14 @@ pub enum LinkError {
 
 #[cfg(windows)]
 fn create_junction<P: AsRef<Path>, Q: AsRef<Path>>(source: P, link: Q) -> Result<(), LinkError> {
-    let source_str = source.as_ref().to_str().expect("Invalid source path");
-    let link_str = link.as_ref().to_str().expect("Invalid link path");
+    let source = source.as_ref();
+    let link = link.as_ref();
+    let source_str = source
+        .to_str()
+        .ok_or_else(|| LinkError::InvalidPath(source.to_path_buf()))?;
+    let link_str = link
+        .to_str()
+        .ok_or_else(|| LinkError::InvalidPath(link.to_path_buf()))?;
 
     let status = Command::new("cmd")
         .args(["/C", "mklink", "/J", link_str, source_str])
@@ -33,7 +42,10 @@ fn create_junction<P: AsRef<Path>, Q: AsRef<Path>>(source: P, link: Q) -> Result
 
 #[cfg(windows)]
 fn remove_junction<P: AsRef<Path>>(link: P) -> Result<(), LinkError> {
-    let link_str = link.as_ref().to_str().expect("Invalid link path");
+    let link = link.as_ref();
+    let link_str = link
+        .to_str()
+        .ok_or_else(|| LinkError::InvalidPath(link.to_path_buf()))?;
 
     let status = Command::new("cmd")
         .args(["/C", "rmdir", link_str])

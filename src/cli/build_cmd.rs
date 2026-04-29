@@ -26,8 +26,10 @@ pub enum BuildCommandError {
     NoOutputDirectory,
     #[error("Blender manifest error: {0}")]
     BlenderManifestError(#[from] blender_manifest::BlenderManifestError),
-    #[error("Output path exists but is not a directory")]
-    InvalidOutputPath,
+    #[error("Source path does not exist or is not a directory: {0}")]
+    InvalidSourcePath(std::path::PathBuf),
+    #[error("Output path exists but is not a directory: {0}")]
+    InvalidOutputPath(std::path::PathBuf),
     #[error("Extension validation error: {0}")]
     ExtensionValidationError(#[from] extension_validation::ExtensionValidationError),
 }
@@ -37,7 +39,7 @@ pub fn run_build_command() -> Result<(), BuildCommandError> {
     let config = BextConfig::from_config_search(&current_dir)?;
     let src_dir = current_dir.join(&config.source_dir);
     if !src_dir.exists() || !src_dir.is_dir() {
-        return Err(BuildCommandError::InvalidOutputPath);
+        return Err(BuildCommandError::InvalidSourcePath(src_dir));
     }
 
     validate_extension(&src_dir)?;
@@ -49,7 +51,7 @@ pub fn run_build_command() -> Result<(), BuildCommandError> {
             if !full_out_path.exists() {
                 fs::create_dir_all(&full_out_path)?;
             } else if !full_out_path.is_dir() {
-                return Err(BuildCommandError::InvalidOutputPath);
+                return Err(BuildCommandError::InvalidOutputPath(full_out_path));
             }
             full_out_path
         }
