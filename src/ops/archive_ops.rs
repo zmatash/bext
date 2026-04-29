@@ -30,7 +30,7 @@ pub fn build_archive<P: AsRef<Path>>(
     let mut zip_writer = ZipWriter::new(BufWriter::new(file));
 
     let options = FileOptions::<()>::default()
-        .compression_method(CompressionMethod::Stored)
+        .compression_method(CompressionMethod::Deflated)
         .unix_permissions(0o755);
 
     let walker = WalkDir::new(src_dir).into_iter().filter_entry(|e| {

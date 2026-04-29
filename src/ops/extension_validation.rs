@@ -19,7 +19,7 @@ pub fn validate_extension<P: AsRef<Path>>(source_dir: P) -> Result<(), Extension
         ));
     }
 
-    let manifest_path = source_dir.join("blender_extension.toml");
+    let manifest_path = source_dir.join("blender_manifest.toml");
     if !manifest_path.exists() {
         return Err(ExtensionValidationError::NoManifestFile(source_dir.into()));
     }
