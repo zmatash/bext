@@ -3,6 +3,7 @@ use colored::Colorize;
 
 mod build_cmd;
 mod clean_cmd;
+mod init_cmd;
 mod link_cmd;
 mod unlink_cmd;
 
@@ -22,6 +23,7 @@ pub enum Commands {
     Unlink,
     Clean,
     Build,
+    Init,
 }
 
 pub fn run() {
@@ -53,6 +55,7 @@ pub fn run() {
         },
         Commands::Clean => clean_cmd::run_clean_command().map_err(|e| e.to_string()),
         Commands::Build => build_cmd::run_build_command().map_err(|e| e.to_string()),
+        Commands::Init => init_cmd::run_init_command().map_err(|e| e.to_string()),
     };
 
     if let Err(e) = result {
