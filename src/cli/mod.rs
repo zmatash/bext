@@ -15,7 +15,10 @@ pub struct Args {
 
 #[derive(Subcommand, Debug, Clone)]
 pub enum Commands {
-    Link,
+    Link {
+        #[arg(short, long, help = "Replace existing paths if they exist")]
+        replace: bool,
+    },
     Unlink,
     Clean,
     Build,
@@ -24,16 +27,36 @@ pub enum Commands {
 pub fn run() {
     let args = Args::parse();
     let result = match args.command {
-        Commands::Link => link_cmd::run_link_command().map_err(|e| e.to_string()),
-        Commands::Unlink => unlink_cmd::run_unlink_command().map_err(|e| e.to_string()),
+        Commands::Link { replace } => match link_cmd::run_link_command(replace) {
+            Ok(result) => {
+                for path in &result.linked {
+                    println!("{} {}", "Linked:".green(), path.display());
+                }
+                for path in &result.skipped {
+                    println!("{} {}", "Skipped:".yellow(), path.display());
+                }
+                Ok(())
+            }
+            Err(e) => Err(e.to_string()),
+        },
+        Commands::Unlink => match unlink_cmd::run_unlink_command() {
+            Ok(result) => {
+                for path in &result.removed {
+                    println!("{} {}", "Removed:".green(), path.display());
+                }
+                for path in &result.not_found {
+                    println!("{} {}", "Not found:".yellow(), path.display());
+                }
+                Ok(())
+            }
+            Err(e) => Err(e.to_string()),
+        },
         Commands::Clean => clean_cmd::run_clean_command().map_err(|e| e.to_string()),
         Commands::Build => build_cmd::run_build_command().map_err(|e| e.to_string()),
     };
 
     if let Err(e) = result {
-        eprintln!("{}", e.to_string().red());
+        eprintln!("{}", e.red());
         std::process::exit(1);
-    } else {
-        println!("{}", "Success!".green());
     }
 }
