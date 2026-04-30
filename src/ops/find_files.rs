@@ -3,6 +3,8 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use walkdir::WalkDir;
+
 fn search_dir_for(dir: &Path, file_name: &str) -> Option<PathBuf> {
     for entry in read_dir(dir).ok()? {
         let entry = entry.ok()?;
@@ -28,9 +30,17 @@ pub fn search_up_for_file<P: AsRef<Path>>(start: P, file_name: &str) -> Option<P
     }
 }
 
+pub fn search_down_for_file<P: AsRef<Path>>(start: P, file_name: &str) -> Option<PathBuf> {
+    WalkDir::new(start)
+        .into_iter()
+        .filter_map(|e| e.ok())
+        .find(|e| e.file_name() == file_name)
+        .map(|e| e.into_path())
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::ops::find_files::search_up_for_file;
+    use crate::ops::find_files::{search_down_for_file, search_up_for_file};
 
     #[test]
     fn test_find_file_in_tree() {
@@ -50,5 +60,23 @@ mod tests {
 
         let file = search_up_for_file(&current_dir, FILE_NAME).unwrap();
         assert_eq!(file, target_file);
+    }
+
+    #[test]
+    fn test_search_down_finds_nested_file() {
+        let tempdir = tempfile::tempdir().unwrap();
+        let nested = tempdir.path().join("a").join("b");
+        std::fs::create_dir_all(&nested).unwrap();
+        let target = nested.join("target.txt");
+        std::fs::write(&target, "test").unwrap();
+
+        let found = search_down_for_file(tempdir.path(), "target.txt").unwrap();
+        assert_eq!(found, target);
+    }
+
+    #[test]
+    fn test_search_down_returns_none_when_missing() {
+        let tempdir = tempfile::tempdir().unwrap();
+        assert!(search_down_for_file(tempdir.path(), "ghost.txt").is_none());
     }
 }
