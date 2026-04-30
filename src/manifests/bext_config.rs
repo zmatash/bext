@@ -65,7 +65,62 @@ impl std::str::FromStr for BextConfig {
     }
 }
 
+pub struct BextConfigBuilder {
+    exclude_globs: Option<Vec<String>>,
+    blender_versions: Option<Vec<Version>>,
+    source_dir: String,
+    output_dir: Option<String>,
+    package_name: Option<String>,
+}
+
+impl BextConfigBuilder {
+    pub fn new(source_dir: impl Into<String>) -> Self {
+        Self {
+            exclude_globs: None,
+            blender_versions: None,
+            source_dir: source_dir.into(),
+            output_dir: None,
+            package_name: None,
+        }
+    }
+
+    pub fn exclude_globs(mut self, v: Vec<String>) -> Self {
+        self.exclude_globs = Some(v);
+        self
+    }
+
+    pub fn blender_versions(mut self, v: Vec<Version>) -> Self {
+        self.blender_versions = Some(v);
+        self
+    }
+
+    pub fn output_dir(mut self, v: impl Into<String>) -> Self {
+        self.output_dir = Some(v.into());
+        self
+    }
+
+    pub fn package_name(mut self, v: impl Into<String>) -> Self {
+        self.package_name = Some(v.into());
+        self
+    }
+
+    pub fn build(self) -> BextConfig {
+        BextConfig {
+            exclude_globs: self.exclude_globs,
+            blender_versions: self.blender_versions,
+            source_dir: self.source_dir,
+            output_dir: self.output_dir,
+            package_name: self.package_name,
+            doc: DocumentMut::default(),
+        }
+    }
+}
+
 impl BextConfig {
+    pub fn builder(source_dir: impl Into<String>) -> BextConfigBuilder {
+        BextConfigBuilder::new(source_dir)
+    }
+
     pub fn from_config_search<P: AsRef<Path>>(search_start: P) -> Result<BextConfig, BextConfigError> {
         let search_start = search_start.as_ref();
         match find_files::search_up_for_file(search_start, "bext.toml") {
