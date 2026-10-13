@@ -7,7 +7,7 @@ pub enum ExtensionValidationError {
     #[error("Directory does not exist: {0}")]
     DirectoryNotFound(PathBuf),
 
-    #[error("No blender_extension.toml file found in source directory {0}")]
+    #[error("No blender_manifest.toml file found in source directory {0}")]
     NoManifestFile(PathBuf),
 }
 
