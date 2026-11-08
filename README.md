@@ -16,7 +16,7 @@ cargo install --path .
 source_dir = "src"
 output_dir = "build"
 blender_versions = ["4.2", "4.1"]
-exclude_globs = ["__pycache__", "*.pyc", ".git"]
+exclude_globs = ["**/__pycache__", "**/*.pyc", "**/.git"]
 ```
 
 2. Run commands:
@@ -41,7 +41,7 @@ Create a `bext.toml` file in your project root. The tool searches up the directo
 
 - **`output_dir`**: Where to save built archives. Required for `build`.
 - **`blender_versions`**: Blender versions to target (e.g., `["4.2", "4.1"]`). Required for `link`/`unlink`.
-- **`exclude_globs`**: Patterns to exclude from archives (e.g., `["__pycache__", "*.pyc"]`). Required for `clean`.
+- **`exclude_globs`**: Patterns to exclude from archives (e.g., `["**/__pycache__", "**/*.pyc"]`). Patterns match paths relative to `source_dir`; prefix with `**/` to match at any depth. Required for `clean`.
 - **`package_name`**: Custom ZIP filename. Supports `{name}`, `{version}`, `{id}`, `{maintainer}` placeholders.
 
 ### Example
@@ -50,7 +50,7 @@ Create a `bext.toml` file in your project root. The tool searches up the directo
 source_dir = "src/my_extension"
 output_dir = "dist"
 blender_versions = ["4.2", "4.1"]
-exclude_globs = ["__pycache__", "*.pyc"]
+exclude_globs = ["**/__pycache__", "**/*.pyc"]
 package_name = "{name}-{version}"
 ```
 
